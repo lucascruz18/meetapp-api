@@ -3,6 +3,9 @@ import User from '../models/User';
 import Meetup from '../models/Meetup';
 import Subscription from '../models/Subscription';
 
+import NewMeetupMail from '../jobs/NewMeetupMail';
+import Queue from '../../lib/Queue';
+
 class SubscriptionsController {
   async index(req, res) {
     const subscriptions = await Subscription.findAll({
@@ -110,6 +113,11 @@ class SubscriptionsController {
     const subscription = await Subscription.create({
       meetup_id: req.params.meetupId,
       user_id: req.userId,
+    });
+
+    await Queue.add(NewMeetupMail.key, {
+      meetup,
+      user,
     });
 
     return res.json(subscription);
