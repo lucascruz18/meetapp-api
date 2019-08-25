@@ -75,6 +75,33 @@ class MeetupController {
     return res.json(meetup);
   }
 
+  async show(req, res) {
+    const meetup = await Meetup.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+        {
+          model: User,
+          as: 'owner',
+          attributes: ['id', 'name'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['id', 'path', 'url'],
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.json(meetup);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       title: Yup.string().required(),
